@@ -1,5 +1,6 @@
 package guru.springframework.controllers;
 
+import guru.springframework.commands.ProductForm;
 import guru.springframework.domain.Product;
 import guru.springframework.services.ProductService;
 import org.junit.Before;
@@ -98,7 +99,7 @@ public class ProductControllerTest {
         Integer id = 1;
         String description = "Test Description";
         BigDecimal price = new BigDecimal("12.00");
-        String imageUrl = "example.com";
+        String imageUrl = "http://example.com";
 
         Product returnProduct = new Product();
         returnProduct.setId(id);
@@ -106,24 +107,24 @@ public class ProductControllerTest {
         returnProduct.setPrice(price);
         returnProduct.setImageUrl(imageUrl);
 
-        when(productService.saveOrUpdate(Matchers.<Product>any())).thenReturn(returnProduct);
+        when(productService.saveOrUpdateProductForm(Matchers.any())).thenReturn(returnProduct);
 
         mockMvc.perform(post("/product")
         .param("id", "1")
         .param("description", description)
         .param("price", "12.00")
-        .param("imageUrl", "example.com"))
+        .param("imageUrl", "http://example.com"))
+                .andExpect(model().attribute("productForm", instanceOf(ProductForm.class)))
+                .andExpect(model().attribute("productForm", hasProperty("id", is(id))))
+                .andExpect(model().attribute("productForm", hasProperty("description", is(description))))
+                .andExpect(model().attribute("productForm", hasProperty("price", is(price))))
+                .andExpect(model().attribute("productForm", hasProperty("imageUrl", is(imageUrl))))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/product/show/1"))
-                .andExpect(model().attribute("product", instanceOf(Product.class)))
-                .andExpect(model().attribute("product", hasProperty("id", is(id))))
-                .andExpect(model().attribute("product", hasProperty("description", is(description))))
-                .andExpect(model().attribute("product", hasProperty("price", is(price))))
-                .andExpect(model().attribute("product", hasProperty("imageUrl", is(imageUrl))));
+                .andExpect(view().name("redirect:/product/show/1"));
 
         //verify properties of bound object
-        ArgumentCaptor<Product> boundProduct = ArgumentCaptor.forClass(Product.class);
-        verify(productService).saveOrUpdate(boundProduct.capture());
+        ArgumentCaptor<ProductForm> boundProduct = ArgumentCaptor.forClass(ProductForm.class);
+        verify(productService).saveOrUpdateProductForm(boundProduct.capture());
 
         assertEquals(id, boundProduct.getValue().getId());
         assertEquals(description, boundProduct.getValue().getDescription());

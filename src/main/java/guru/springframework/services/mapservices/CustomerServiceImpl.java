@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Service
 @Profile("map")
-public class CustomerServiceImpl extends AbstractMapService implements CustomerService {
+public class     CustomerServiceImpl extends AbstractMapService implements CustomerService {
 
     private CustomerFormToCustomer customerFormToCustomer;
 
